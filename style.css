@@ -1,0 +1,192 @@
+body {
+    background: #f2f3f3;
+}
+* {
+    margin: 0;
+    padding: 0;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.header {
+    min-height: 100vh;
+    width: 100%;
+    background-image: linear-gradient(rgba(4,9,30,0.7),rgba(4,9,30,0.7)),url(images/ocean.jpg);
+    filter: grayscale(100%);
+    background-position: center;
+    background-size: cover;
+    position: relative;
+}
+
+nav {
+    display: flex;
+    padding 2% 4%;
+    justify-content: space-between;
+    align-items: center;
+}
+nav img {
+    filter: invert(100%);
+    width: 120px;
+    transform: translate(10px, 5px);
+}
+.nav-links{
+    flex: 1;
+    text-align: right;
+    margin-right: 20px;
+}
+.nav-links ul li {
+    list-style: none;
+    display: inline-block;
+    padding: 8px 12px;
+    position: relative;
+}
+
+.nav-links ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.nav-links ul li::after {
+    content: '';
+    width: 0%;
+    height: 2px;
+    background: #fff;
+    display: block;
+    margin: auto;
+    transition: 0.5s;
+    margin-top: 2px;
+}
+
+.nav-links ul li:hover::after {
+    width: 100%;
+}
+.text-box{
+    width: 90%;
+    color: #fff;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+.text-box h1 {
+    font-size: 60px;
+}
+.text-box p {
+    margin: 10px 0 40px;
+    font-size: 18px;
+}
+.about{
+    width: 80%;
+    margin: auto;
+    text-align:center;
+    padding-top: 100px;
+}
+.about h1 {
+    font-size: 50px;
+    font-weight: 600;
+}
+.bio h3 {
+    padding-top: 15px;
+    font-size: 25px;
+    font-weight: 700;
+}
+.bio {
+    margin-top: 5%;
+    background: white;
+    border-radius: 20px;
+    margin-bottom: 5%;
+    box-sizing: border-box;
+    transition: 0.5s;
+    padding: 5%;
+}
+.bio:hover{
+    box-shadow: 0 0 20px 0px rgba(0,0,0,0.2);
+}
+.about p{
+    text-align:left;
+    color: #777;
+    line-height: 30px;
+    padding-top: 25px;
+}
+
+
+.eduBackground {
+    width: 80%;
+    margin: auto;
+    text-align: center;
+}
+.edutitle{
+    font-size: 50px;
+    font-weight: 500;
+    margin-top: 300px;
+    margin-bottom: 75px;
+}
+.education {
+    display:flex;
+    justify-content: space-between;
+}
+.education img{
+    height: 200px;
+    padding: 15px 0;
+}
+.education h3{
+    font-size: 30px;
+}
+.education-col {
+    flex-basis: 45%;
+    background: #fff;
+    border-radius: 20px;
+    padding: 5%;
+    box-sizing: border-box;
+    overflow: hidden;
+    position: relative;
+}
+.education p {
+    text-align: center;
+    font-size: 24px;
+    padding-top: 5px;
+}
+.layer {
+    background: transparent;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: 0.5s;
+}
+.layer:hover {
+    background: rgba(0,0,0,0.6);
+}
+.layer a {
+    width: 100%;
+    font-size: 40px;
+    font-weight: 400;
+    color: #fff;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    position: absolute;
+    opacity: 0;
+    text-decoration: none;
+    transition: 0.5s;
+}
+
+.layer:hover a {
+    bottom: 45%;
+    opacity: 1;
+}
+
+/*--Footer--*/
+
+footer {
+    padding-top: 100px;
+    width: 100%;
+    height: 200px;
+    margin:auto;
+}
+footer hr{
+    border-color: lightgray;
+    width: 100%;
+}
