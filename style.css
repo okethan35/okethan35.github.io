@@ -1,3 +1,23 @@
+html {
+    scroll-behavior: smooth;
+    scroll-snap-type:y proximity;
+    scroll-margin: 60vh;
+}
+::-webkit-scrollbar{
+    width: 10px;
+    background:transparent;
+}
+::-webkit-scrollbar-track {
+    background:transparent;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb{
+    border-radius:10px;
+    background: #b2b2b2;
+}
+::-webkit-scrollbar-thumb:hover{
+    background: #888;
+}
 body {
     background: #f2f3f3;
 }
@@ -15,6 +35,7 @@ body {
     background-position: center;
     background-size: cover;
     position: relative;
+    scroll-snap-align:start;
 }
 
 nav {
@@ -76,11 +97,15 @@ nav img {
     margin: 10px 0 40px;
     font-size: 18px;
 }
+
+/*--About--*/
+
 .about{
     width: 80%;
     margin: auto;
     text-align:center;
     padding-top: 100px;
+    scroll-snap-align:start;
 }
 .about h1 {
     font-size: 50px;
@@ -92,15 +117,34 @@ nav img {
     font-weight: 700;
 }
 .bio {
-    margin-top: 5%;
     background: white;
     border-radius: 20px;
     margin-bottom: 5%;
     box-sizing: border-box;
-    transition: 0.5s;
     padding: 5%;
+    flex-basis: 65%;
+
 }
-.bio:hover{
+.about-col img {
+    border-radius: 20px;
+    height: 450px;
+}
+.pic {
+    flex-basis: 30%;
+    width: fit-content;
+    height: fit-content;
+    border-radius: 20px;
+    margin-top: 20px; 
+}
+.about-col {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5%;
+}
+.about-col div {
+    transition: 0.5s;
+}
+.about-col div:hover{
     box-shadow: 0 0 20px 0px rgba(0,0,0,0.2);
 }
 .about p{
@@ -115,12 +159,18 @@ nav img {
     width: 80%;
     margin: auto;
     text-align: center;
+    scroll-snap-align:start;
+    height: 100vh;
+}
+.container {
+    height:100vh;
 }
 .edutitle{
     font-size: 50px;
     font-weight: 500;
-    margin-top: 300px;
-    margin-bottom: 75px;
+    margin-top: 150px;
+    padding-top:75px;
+    margin-bottom: 125px;
 }
 .education {
     display:flex;
@@ -182,11 +232,35 @@ nav img {
 
 footer {
     padding-top: 100px;
-    width: 100%;
+    width: 80%;
     height: 200px;
     margin:auto;
 }
 footer hr{
     border-color: lightgray;
     width: 100%;
+}
+
+/*--Contact--*/
+
+.contact-text {
+    background-color: #f2f3f3;
+    width: 100%;
+    height: 69.8%;
+    margin-top:5%;
+    text-align:center;
+}
+.contact{
+    width: 80%;
+    margin-top: 50px;
+}
+.contact-me{
+    text-align: center;
+    font-size: 60px;
+    padding-top: 50px;
+    color: #fff;
+}
+.contact-text img {
+    width: 200px;
+    color: aqua;
 }
