@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ethan's Website</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="slider_game/puzzle.js"></script>
+</head>
+
+<body>
+
+    <section class="sub-header">
+
+        <nav>
+            <a href="index.html"><img src="images/logo.png" /></a>
+            <div class="nav-links" id="navLinks">
+                <ul>
+                    <li><a href="index.html">HOME</a></li>
+                    <li><a href="index.html#ABOUT">ABOUT</a></li>
+                    <li><a href="projects.html">PROJECTS</a></li>
+                    <li><a href="resume.html">RESUME</a></li>
+                    <li><a href="contact.html">CONTACT</a></li>
+                </ul>
+            </div>
+
+        </nav>
+        <h1 class="title">Slider Game</h1>
+    </section>
+    
+    
+    <section class="project-area">
+        <div id="board">
+            <div class="win-box" id="win-box">
+                <h1>You Win!</h1>
+                <button id="restart-button" onclick="resetGame()">Play Again</button>
+            </div>
+        </div>
+        
+        <h1>Moves: <span id="moves">0</span></h1>
+        <h2>To move a tile, drag the selected tile to an adjacent blank spot</h2>
+    </section>
+
+</body>
+</html>
