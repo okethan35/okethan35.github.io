@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+/* Tailwind v4: CSS-first config using @theme */
+@theme {
+  /* fonts */
+  --font-display: "Bungee", system-ui, sans-serif;
+  --font-body: "Work Sans", system-ui, sans-serif;
+
+  /* retro cereal-box palette */
+  --color-cereal-red:   #F0544F;
+  --color-cereal-deep:  #C2352B;
+  --color-cereal-yellow:#F4C542;
+  --color-cereal-teal:  #1FA9A4;
+  --color-cereal-blue:  #2F6FED;
+  --color-cereal-cream: #FFF5E0;
+  --color-cereal-brown: #2B1B17;
+}
+
+/* Optional: some base styles */
+@layer base {
+  body {
+    margin: 0;
+    font-family: var(--font-body);
+    background-color: var(--color-cereal-cream);
+    color: var(--color-cereal-brown);
+  }
+}
