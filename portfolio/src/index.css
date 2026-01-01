@@ -25,3 +25,17 @@
     color: var(--color-cereal-brown);
   }
 }
+
+.bg-noise {
+  position: relative;
+}
+.bg-noise::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("/noise.png");
+  background-size: 200px 200px; /* or 'cover' / tweak to taste */
+  opacity: 0.12;
+  mix-blend-mode: soft-light;
+}
