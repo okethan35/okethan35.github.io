@@ -1,42 +1,50 @@
-export function FigmaNoiseOverlay() {
-  return (
-    <svg
-      className="pointer-events-none fixed inset-0 w-full h-full -z-10"
-      aria-hidden="true"
-    >
-      <defs>
-        {/* Paste your filter0_n_16_21 from the Figma export here */}
-        <filter
-          id="figmaNoise"
-          x="0"
-          y="0"
-          width="100%"
-          height="100%"
-          filterUnits="objectBoundingBox"
-          colorInterpolationFilters="sRGB"
-        >
-          <feTurbulence
-            type="fractalNoise"
-            baseFrequency="2.5 2.5"
-            stitchTiles="stitch"
-            numOctaves="3"
-            result="noise"
-          />
-          {/* simple alpha control; if you want pixel-perfect, paste the
-               full <feComponentTransfer> stack from your export */}
-          <feComponentTransfer>
-            <feFuncA type="table" tableValues="0 0.15" />
-          </feComponentTransfer>
-        </filter>
-      </defs>
+import { memo, useMemo, useEffect, useRef } from 'react';
 
-      {/* this sits on top of your red and gives that grain */}
-      <rect
-        width="100%"
-        height="100%"
-        filter="url(#figmaNoise)"
-        opacity="0.35"
-      />
-    </svg>
+/**
+ * Optimized noise overlay using CSS instead of expensive SVG feTurbulence
+ * Uses a small pre-generated noise pattern that tiles efficiently
+ */
+export const FigmaNoiseOverlay = memo(function FigmaNoiseOverlay() {
+  // Generate noise pattern once using canvas - much more performant than SVG filter
+  const noiseDataUrl = useMemo(() => {
+    // Check if we're in browser environment
+    if (typeof document === 'undefined') return '';
+    
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return '';
+    
+    // Small tile size for good performance while maintaining noise quality
+    const size = 128;
+    canvas.width = size;
+    canvas.height = size;
+    
+    const imageData = ctx.createImageData(size, size);
+    const data = imageData.data;
+    
+    // Generate grayscale noise
+    for (let i = 0; i < data.length; i += 4) {
+      const noise = Math.random() * 255;
+      data[i] = noise;     // R
+      data[i + 1] = noise; // G
+      data[i + 2] = noise; // B
+      data[i + 3] = 25;    // A - low opacity for subtle effect
+    }
+    
+    ctx.putImageData(imageData, 0, 0);
+    return canvas.toDataURL('image/png');
+  }, []);
+
+  return (
+    <div
+      className="pointer-events-none fixed inset-0 -z-10"
+      aria-hidden="true"
+      style={{
+        backgroundImage: noiseDataUrl ? `url(${noiseDataUrl})` : 'none',
+        backgroundRepeat: 'repeat',
+        opacity: 0.4,
+        mixBlendMode: 'overlay',
+      }}
+    />
   );
-}
+});

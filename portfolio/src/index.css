@@ -18,11 +18,37 @@
 
 /* Optional: some base styles */
 @layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    /* Firefox scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(43, 27, 23, 0.3) transparent;
+    /* Remove scrollbar gutter space */
+    scrollbar-gutter: auto;
+    overflow-y: overlay;
+  }
+  
   body {
     margin: 0;
     font-family: var(--font-body);
     background-color: var(--color-cereal-cream);
     color: var(--color-cereal-brown);
+    overflow-x: hidden;
+    /* iOS-like bouncy scroll */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: bounce;
+    /* Firefox scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(43, 27, 23, 0.3) transparent;
+    /* Remove scrollbar gutter space */
+    scrollbar-gutter: auto;
+  }
+  
+  /* Smooth scrolling with momentum */
+  * {
+    -webkit-overflow-scrolling: touch;
   }
 }
 
@@ -38,4 +64,171 @@
   background-size: 200px 200px; /* or 'cover' / tweak to taste */
   opacity: 0.12;
   mix-blend-mode: soft-light;
+}
+
+/* Utility: Hide scrollbar but keep functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
+
+/* CSS 3D Utilities for Point-and-Click Aisle */
+.perspective-1000 {
+  perspective: 1000px;
+  perspective-origin: center center;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* iOS-like bouncy scroll container */
+.bouncy-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: bounce;
+  overflow-y: auto;
+  height: 100vh;
+  scroll-behavior: smooth;
+}
+
+/* Smooth momentum scrolling */
+@supports (-webkit-overflow-scrolling: touch) {
+  .bouncy-scroll {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Modern Auto-Hide Scrollbar - Floating thumb, no track visible */
+/* Webkit browsers (Chrome, Safari, Edge, Opera) */
+::-webkit-scrollbar {
+  width: 6px !important;
+  height: 6px !important;
+  background: transparent !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+
+::-webkit-scrollbar-track {
+  /* Completely invisible track - transparent and no visual elements */
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  /* Make track completely invisible */
+  opacity: 0 !important;
+  visibility: hidden !important;
+  /* Remove all visual styling */
+  -webkit-background-clip: padding-box !important;
+  background-clip: padding-box !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(43, 27, 23, 0) !important;
+  background-color: rgba(43, 27, 23, 0) !important;
+  border-radius: 10px !important;
+  border: none !important;
+  background-clip: padding-box !important;
+  -webkit-background-clip: padding-box !important;
+  transition: background 0.3s ease, background-color 0.3s ease, opacity 0.3s ease !important;
+  opacity: 0 !important;
+  min-height: 20px !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  /* Make thumb float - no track connection */
+  margin: 2px !important;
+}
+
+/* Show scrollbar when scrolling */
+body.scrolling ::-webkit-scrollbar-thumb,
+html.scrolling ::-webkit-scrollbar-thumb {
+  background: rgba(43, 27, 23, 0.6) !important;
+  background-color: rgba(43, 27, 23, 0.6) !important;
+  opacity: 1 !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(43, 27, 23, 0.8) !important;
+  background-color: rgba(43, 27, 23, 0.8) !important;
+  opacity: 1 !important;
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: rgba(240, 84, 79, 0.9) !important;
+  background-color: rgba(240, 84, 79, 0.9) !important;
+  opacity: 1 !important;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent !important;
+  background-color: transparent !important;
+  display: none !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+
+/* Firefox scrollbar - Auto-hide */
+html {
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(43, 27, 23, 0) transparent !important;
+  transition: scrollbar-color 0.3s ease !important;
+}
+
+html.scrolling {
+  scrollbar-color: rgba(43, 27, 23, 0.4) transparent !important;
+}
+
+body {
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(43, 27, 23, 0) transparent !important;
+  transition: scrollbar-color 0.3s ease !important;
+}
+
+body.scrolling {
+  scrollbar-color: rgba(43, 27, 23, 0.4) transparent !important;
+}
+
+/* Hide scrollbar completely when needed (e.g., during animations) */
+.no-scrollbar ::-webkit-scrollbar,
+html.no-scrollbar ::-webkit-scrollbar,
+body.no-scrollbar ::-webkit-scrollbar {
+  width: 0px !important;
+  height: 0px !important;
+  display: none !important;
+}
+
+.no-scrollbar,
+html.no-scrollbar,
+body.no-scrollbar {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+  overflow: hidden !important;
+}
+
+/* Hide scrollbar on mobile devices */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 0px !important;
+    display: none !important;
+  }
+  
+  html,
+  body {
+    scrollbar-width: none !important;
+  }
 }

@@ -9,4 +9,11 @@ export default defineConfig({
     tailwindcss(),
     svgr(),
   ],
+  server: {
+    fs: {
+      // Allow serving files from the project root
+      strict: false,
+    },
+  },
+  publicDir: 'public',
 })

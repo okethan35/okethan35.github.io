@@ -9,7 +9,13 @@ export default function StorefrontHero({ onEnterStore }) {
   const shadowRef = useRef(null);
 	const hoverTlRef = useRef(null);
   const tlRef = useRef(null);
+  const onEnterStoreRef = useRef(onEnterStore);
   const [isPlaying, setIsPlaying] = useState(false);
+
+  // Keep the ref updated without causing effect re-runs
+  useLayoutEffect(() => {
+    onEnterStoreRef.current = onEnterStore;
+  });
 
   useLayoutEffect(() => {
     // gsap.context keeps selectors scoped to this component
@@ -33,8 +39,8 @@ export default function StorefrontHero({ onEnterStore }) {
 				{
 					y: -8,
 					scale: 1.02,
-					duration: 0.25,
-					ease: "power2.out",
+					duration: 0.4,
+					ease: "power1.out", // Smoother, more natural easing
 				},
 				0
 			).to(
@@ -45,8 +51,8 @@ export default function StorefrontHero({ onEnterStore }) {
 					filter: "blur(1px)",
 					scaleX: 1.03,
 					scaleY: 1.02,
-					duration: 0.25,
-					ease: "power2.out",
+					duration: 0.4,
+					ease: "power1.out", // Match card timing
 				},
 				0
 			);
@@ -63,67 +69,71 @@ export default function StorefrontHero({ onEnterStore }) {
       gsap.set("#DoorsLeft", { xPercent: 0 });
       gsap.set("#DoorsRight", { xPercent: 0 });
 
-      // Step 1: doors slide open
+      // Step 1: doors slide open with premium easing
       tl.to(
         "#DoorsLeft",
         {
-          xPercent: -85, // tweak so doors slide fully off-frame
-          duration: 2.0,
+          xPercent: -85,
+          duration: 2.2, // Slightly longer for smoother feel
+          ease: "expo.out", // Premium easing - starts fast, ends smooth
         },
-        0 // start at time 0
+        0
       ).to(
         "#DoorsRight",
         {
           xPercent: 85,
-          duration: 2.0,
+          duration: 2.2,
+          ease: "expo.out",
         },
-        0 // same time → symmetrical
+        0
       );
 
-      // Optional: brighten interior / walls a bit as doors open
+      // Brighten interior / walls with smooth fade
       tl.to(
         "#WallLeft, #WallRight",
         {
           opacity: 0.9,
-          duration: 0.4,
+          duration: 0.8, // Longer, smoother fade
+          ease: "power2.inOut",
         },
-        0.1
+        0.2 // Start slightly after doors for natural flow
       );
 
-      // Step 2: zoom card toward camera & fade out
+      // Step 2: zoom card toward camera with premium easing
+      // Start zoom slightly before doors fully open for smoother transition
       tl.to(
         cardRef.current,
         {
-          scale: 2.0,
+          scale: 3.0,
 					yPercent: -4,
           opacity: 0,
-          duration: 1.2,
-          ease: "power3.in",
+          duration: 2.8, // Slightly longer for more immersive feel
+          ease: "power2.in", // Smoother acceleration than power3
         },
-        1.3 // start a bit after doors begin moving
+        1.0 // Start earlier for better flow
       );
 
-			// subtle settling early in the animation
+			// Shadow fade with coordinated timing
 			tl.to(
         shadowRef.current,
         {
           opacity: 0,
-          filter: "blur(18px)",
-          scaleX: 1.08,
-          scaleY: 1.08,
-          duration: 1.1,
-          ease: "power3.in",
+          filter: "blur(20px)", // Slightly more blur for smoother fade
+          scaleX: 1.1,
+          scaleY: 1.1,
+          duration: 2.6, // Slightly shorter than card for natural feel
+          ease: "power2.in",
         },
-        1.2
+        0.95 // Start slightly before card zoom
       );
 
-			tl.call(() => onEnterStore?.(), [], 1.3); // <-- start transition exactly when zoom begins
+			tl.call(() => onEnterStoreRef.current?.(), [], 1.0); // Start transition when zoom begins
 
       tlRef.current = tl;
     }, rootRef);
 
     return () => ctx.revert();
-  }, [onEnterStore]);
+  }, []); // Empty deps - effect only runs once on mount
 
   const handleClick = () => {
     if (isPlaying) return;
@@ -133,7 +143,7 @@ export default function StorefrontHero({ onEnterStore }) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#C2352B] overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-[#C2352B] overflow-hidden" style={{ overflow: 'hidden', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
 			<button
         ref={rootRef}
         type="button"
