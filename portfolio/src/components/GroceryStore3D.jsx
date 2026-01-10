@@ -23,8 +23,9 @@ const AISLES = [
         description: 'This is a detailed description of my featured project. It showcases my skills in full-stack development, problem-solving, and creating user-friendly applications.',
         tech: ['React', 'Node.js', 'PostgreSQL', 'TypeScript'],
         shelfPosition: { row: 0, col: 0 },
-        modelPath: '/models/sample.glb',
+        modelPath: '/models/ethan_cereal_box.glb',
         modelScale: 0.04, // Optional: Custom scale (default: 1.5)
+        modelRotation: [0, 180, 0], // Optional: [x, y, z] rotation in degrees to fix backwards models (180° on Y axis flips it)
         useModal: true, // Uncomment to use modal view (left item + right modal) instead of centered view
       },
       {
@@ -35,8 +36,9 @@ const AISLES = [
         description: 'A comprehensive display of my technical skills and experience across various technologies and frameworks.',
         tech: ['JavaScript', 'TypeScript', 'Python', 'React'],
         shelfPosition: { row: 0, col: 1 },
-        modelPath: '/models/sample.glb',
+        modelPath: '/models/ethan_cereal_box.glb',
         modelScale: 0.04,
+        modelRotation: [0, 180, 0], // Optional: [x, y, z] rotation in degrees to fix backwards models
       },
       {
         id: 'project-3',
@@ -132,10 +134,12 @@ export default function GroceryStore3D({ onAisleChange }) {
   const [rotationImmediate, setRotationImmediate] = useState(false); // Skip animation flag
   const [viewState, setViewState] = useState('aisle'); // 'aisle' | 'item-focused' | 'item-modal'
   const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
+  const [isModalExiting, setIsModalExiting] = useState(false);
 
   const sceneRef = useRef(null);
   const shelfRef = useRef(null);
   const itemRefs = useRef({});
+  const modalRef = useRef(null);
   const focusedItemRef = useRef(null);
   const dimOverlayRef = useRef(null);
 
@@ -164,6 +168,7 @@ export default function GroceryStore3D({ onAisleChange }) {
         rotationY: 0, // Always start at 0 when item first appears
         opacity: 1,
       });
+      
 
       // Use requestAnimationFrame to ensure DOM is ready
       requestAnimationFrame(() => {
@@ -178,11 +183,19 @@ export default function GroceryStore3D({ onAisleChange }) {
             ease: 'power2.inOut',
           });
         } else if (viewState === 'item-modal') {
-          // Animate to left side for modal view
+          // Animate item to slightly left of center for modal view
+          // Adjust these values to tweak item positioning:
+          const itemHorizontalOffset = -0.16; // Negative = left, Positive = right (as % of screen width)
+          const itemVerticalOffset = 0; // Negative = up, Positive = down (in pixels)
+          const itemScale = 2.75; // Scale of the item
+          
+          const targetX = window.innerWidth * itemHorizontalOffset;
+          const targetY = itemVerticalOffset;
+          
           gsap.to(focusedItemRef.current, {
-            x: startPosition.x,
-            y: 0,
-            scale: 2.75,
+            x: targetX,
+            y: targetY,
+            scale: itemScale,
             rotationY: 0,
             duration: 0.8,
             ease: 'power2.inOut',
@@ -191,6 +204,54 @@ export default function GroceryStore3D({ onAisleChange }) {
       });
     }
   }, [viewState, selectedItem, startPosition]);
+
+  // Animate modal opening
+  useLayoutEffect(() => {
+    if (!modalRef.current || viewState !== 'item-modal') return;
+
+    // Reset exit flag when entering modal view
+    setIsModalExiting(false);
+    
+    // Set initial state for opening animation
+    gsap.set(modalRef.current, {
+      x: 100,
+      opacity: 0,
+      scale: 0.9,
+    });
+
+    // Opening animation - slide in from right and fade in
+    // Delay by 0.4s to start after item animation starts
+    gsap.to(modalRef.current, {
+      x: 0,
+      opacity: 1,
+      scale: 1,
+      duration: 0.5,
+      delay: 0.4, // Wait for item animation to finish
+      ease: 'power2.out',
+    });
+  }, [viewState]);
+
+  // Prevent body scrolling when item is selected
+  useEffect(() => {
+    if (viewState === 'item-focused' || viewState === 'item-modal') {
+      // Store original overflow values
+      const originalOverflow = document.body.style.overflow;
+      const originalOverflowX = document.body.style.overflowX;
+      const originalOverflowY = document.body.style.overflowY;
+      
+      // Prevent scrolling
+      document.body.style.overflow = 'hidden';
+      document.body.style.overflowX = 'hidden';
+      document.body.style.overflowY = 'hidden';
+      
+      return () => {
+        // Restore original overflow values
+        document.body.style.overflow = originalOverflow;
+        document.body.style.overflowX = originalOverflowX;
+        document.body.style.overflowY = originalOverflowY;
+      };
+    }
+  }, [viewState]);
 
   // Rotation is now handled by the 3D model's Three.js rotation, not CSS
   // No container rotation needed
@@ -283,9 +344,9 @@ export default function GroceryStore3D({ onAisleChange }) {
     const itemCenterX = rect.left + rect.width / 2;
     const itemCenterY = rect.top + rect.height / 2;
 
-    // Store start position for animation - position to left side
+    // Store original position (without offset) for animation start
     setStartPosition({
-      x: itemCenterX - centerX - (window.innerWidth * 0.15), // Offset to left
+      x: itemCenterX - centerX, // Original position, no offset
       y: itemCenterY - centerY,
     });
 
@@ -306,6 +367,30 @@ export default function GroceryStore3D({ onAisleChange }) {
   // Handle back to aisle
   const handleBackToAisle = () => {
     if (!selectedItem || !focusedItemRef.current) return;
+
+    // If in modal view, trigger exit animation first BEFORE changing state
+    if (viewState === 'item-modal' && modalRef.current) {
+      setIsModalExiting(true);
+      // Kill any existing animations on the modal to prevent conflicts
+      gsap.killTweensOf(modalRef.current);
+      // Animate from current state to exit state
+      gsap.fromTo(
+        modalRef.current,
+        {
+          x: gsap.getProperty(modalRef.current, "x") || 0, // Get current x value
+          opacity: gsap.getProperty(modalRef.current, "opacity") || 1, // Get current opacity
+          scale: gsap.getProperty(modalRef.current, "scale") || 1, // Get current scale
+        },
+        {
+          x: 100,
+          opacity: 0,
+          scale: 0.9,
+          delay: 0.2,
+          duration: 0.4,
+          ease: 'power2.out',
+        }
+      );
+    }
 
     // Normalize rotation to 0-360 range to find current side
     const normalizedAngle = ((rotationAngle % 360) + 360) % 360;
@@ -356,6 +441,7 @@ export default function GroceryStore3D({ onAisleChange }) {
         setSelectedItem(null);
         setViewState('aisle');
         setIsFlipped(false);
+        setIsModalExiting(false);
       },
     });
 
@@ -487,6 +573,7 @@ export default function GroceryStore3D({ onAisleChange }) {
           style={{ 
             zIndex: 60,
             perspective: '1000px', // Add perspective for proper 3D rotation
+            overflow: 'hidden', // Prevent any overflow that could cause scrolling
           }}
         >
           <div
@@ -509,22 +596,28 @@ export default function GroceryStore3D({ onAisleChange }) {
       )}
 
       {/* Modal View - Item on left, modal on right */}
-      {selectedItem && viewState === 'item-modal' && (
+      {selectedItem && (viewState === 'item-modal' || isModalExiting) && (
         <div
-          className="fixed inset-0 flex items-center justify-between px-8 pointer-events-none"
+          className="fixed inset-0 pointer-events-none"
           style={{ 
             zIndex: 60,
             perspective: '1000px',
+            overflow: 'hidden', // Prevent any overflow that could cause scrolling
           }}
         >
-          {/* 3D Item on the left */}
+          {/* 3D Item - positioned by GSAP transforms, slightly left of center */}
           <div
             ref={focusedItemRef}
             className="pointer-events-auto cursor-pointer preserve-3d"
             style={{ 
+              position: 'fixed', // Use fixed to stay viewport-relative, not affected by scroll
+              left: '50%', // Center horizontally (GSAP x transform adjusts from here)
+              top: '50%',  // Center vertically (GSAP y transform adjusts from here)
+              transform: 'translate(-50%, -50%)', // Center the element itself
               transformStyle: 'preserve-3d',
               transformOrigin: '50% 50%',
               opacity: 1,
+              willChange: 'transform', // Optimize for transforms
             }}
             onClick={handleFlip}
           >
@@ -535,9 +628,29 @@ export default function GroceryStore3D({ onAisleChange }) {
             />
           </div>
 
-          {/* Modal on the right */}
-          <div className="pointer-events-auto flex-shrink-0" style={{ width: '500px', maxHeight: '80vh' }}>
-            <ItemModal product={selectedItem} onClose={handleBackToAisle} />
+          {/* Modal container - constrained to middle 70% of screen */}
+          <div
+            className="fixed inset-0 flex items-center justify-center pointer-events-none"
+            style={{ 
+              width: '70vw',
+              maxWidth: '1400px',
+              left: '45%',
+              transform: 'translateX(-50%)',
+            }}
+          >
+            {/* Modal on the right side of the 70% container */}
+            <div 
+              ref={modalRef}
+              className={isModalExiting ? "pointer-events-none flex-shrink-0" : "pointer-events-auto flex-shrink-0"}
+              style={{ 
+                width: '500px', 
+                maxHeight: '80vh',
+                marginLeft: 'auto',
+                willChange: 'transform, opacity', // Optimize for animations
+              }}
+            >
+              <ItemModal product={selectedItem} onClose={handleBackToAisle} />
+            </div>
           </div>
         </div>
       )}
@@ -546,7 +659,7 @@ export default function GroceryStore3D({ onAisleChange }) {
       {(viewState === 'item-focused' || viewState === 'item-modal') && (
         <button
           onClick={handleBackToAisle}
-          className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] px-4 py-2 bg-cereal-cream border-2 border-cereal-brown rounded-lg shadow-[3px_3px_0_#2B1B17] hover:shadow-[4px_4px_0_#2B1B17] hover:-translate-y-[2px] transition-all font-bold text-cereal-brown text-sm"
+          className="fixed top-12 left-1/2 -translate-x-1/2 z-[100] px-4 py-2 bg-cereal-cream border-2 border-cereal-brown rounded-lg shadow-[3px_3px_0_#2B1B17] hover:shadow-[4px_4px_0_#2B1B17] hover:-translate-y-[2px] transition-all font-bold text-cereal-brown text-sm"
         >
           ← Back to Shelf
         </button>

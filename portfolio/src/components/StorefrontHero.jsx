@@ -119,12 +119,14 @@ export default function StorefrontHero({ onEnterStore }) {
         {
           opacity: 0,
           filter: "blur(20px)", // Slightly more blur for smoother fade
-          scaleX: 1.1,
-          scaleY: 1.1,
-          duration: 2.6, // Slightly shorter than card for natural feel
+          scale: 3.0, // Match card's scale
+          x: 42, // Scale the offset: 14 * 3.0 = 42
+          y: 42, // Scale the offset: 14 * 3.0 = 42
+          yPercent: -4, // Match card's upward movement
+          duration: 2.8, // Match card duration for synchronized movement
           ease: "power2.in",
         },
-        0.95 // Start slightly before card zoom
+        1.0 // Start at same time as card zoom
       );
 
 			tl.call(() => onEnterStoreRef.current?.(), [], 1.0); // Start transition when zoom begins
