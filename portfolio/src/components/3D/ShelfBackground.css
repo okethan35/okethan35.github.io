@@ -1,0 +1,308 @@
+/* Shelf Background - Mid-Century Illustrated Grocery Shelf */
+
+/* CSS Variables for mid-century color palette */
+:root {
+  /* Warm browns - printed cardboard/painted wood tones */
+  --brown-dark: #5c3d2a;        /* Darkest shadow / underside */
+  --brown-base: #7a5a47;        /* Base brown */
+  --brown-medium: #8b6b57;      /* Medium tone */
+  --brown-light: #a0826f;       /* Light tone */
+  --brown-highlight: #c4a689;   /* Muted highlight band */
+  --brown-underside: #4a3325;   /* Darker underside band */
+  
+  /* Shadows and highlights - more graphic, less realistic */
+  --shadow-illustrated: rgba(0, 0, 0, 0.25);
+  --shadow-soft: rgba(0, 0, 0, 0.12);
+  --highlight-muted: rgba(255, 248, 240, 0.3);
+  
+  --shelf-thickness: 22px;      /* Plank-like thickness for believable scale with 3D products */
+
+  /* Shelf grid – shared alignment, equal row heights */
+  --shelf-row-0-bottom: 75%;
+  --shelf-row-1-bottom: 50%;
+  --shelf-row-2-bottom: 25%;
+  --shelf-row-3-bottom: 0%;
+  /* Grid row heights: equal 25% each */
+  --shelf-grid-row-0: 25%;
+  --shelf-grid-row-1: 25%;
+  --shelf-grid-row-2: 25%;
+  --shelf-grid-row-3: 25%;
+
+  /* Shelf ledge width – inset from left/right (higher = narrower ledge) */
+  --shelf-edge-1: 10%;   /* Top shelf */
+  --shelf-edge-2: 7%;
+  --shelf-edge-3: 5.5%;
+  --shelf-edge-4: 4%;    /* Bottom shelf */
+}
+
+.shelf-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  perspective: 1200px;
+  perspective-origin: center center;
+  /* Scale/translate now on .shelf-viewport so grid + shelf stay aligned */
+}
+
+/* Single halftone overlay – light, whole-unit (avoids noisy per-piece seams) */
+.shelf-background::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 2px 2px, rgba(0, 0, 0, 0.15) 0.5px, transparent 0.5px),
+    radial-gradient(circle at 6px 6px, rgba(0, 0, 0, 0.15) 0.5px, transparent 0.5px);
+  background-size: 8px 8px;
+  opacity: 0.12;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+/* ============================================
+   SIDE SUPPORTS - Clean, stylized frames
+   ============================================ */
+.shelf-side {
+  position: absolute;
+  bottom: 0;
+  width: 4%;
+  height: 100%;
+  background: var(--brown-dark);
+  border-left: 2px solid var(--brown-highlight);
+  border-right: 2px solid var(--brown-underside);
+  box-shadow: inset 3px 0 6px var(--shadow-illustrated);
+  transform: rotateX(4deg);
+  transform-origin: bottom center;
+  transform-style: preserve-3d;
+}
+
+.shelf-side-left {
+  left: 0;
+  border-left: 3px solid var(--brown-highlight);
+  background: linear-gradient(
+    to right,
+    var(--brown-light) 0%,
+    var(--brown-base) 15%,
+    var(--brown-dark) 100%
+  );
+}
+
+.shelf-side-right {
+  right: 0;
+  border-right: 3px solid var(--brown-underside);
+  background: linear-gradient(
+    to left,
+    var(--brown-base) 0%,
+    var(--brown-dark) 100%
+  );
+  box-shadow: inset -3px 0 6px var(--shadow-illustrated);
+}
+
+/* ============================================
+   BACK WALL - Cabinet interior with vignette depth
+   ============================================ */
+.shelf-back-wall {
+  position: absolute;
+  bottom: 0;
+  left: 4%;
+  right: 4%;
+  height: 100%;
+  /* Cabinet interior – vignette for depth, not flat wallpaper */
+  background:
+    radial-gradient(120% 90% at 50% 20%,
+      rgba(255, 255, 255, 0.18),
+      rgba(0, 0, 0, 0.35) 70%),
+    linear-gradient(
+      to bottom,
+      var(--brown-medium) 0%,
+      var(--brown-base) 40%,
+      var(--brown-dark) 100%
+    );
+  transform: rotateX(4deg);
+  transform-origin: bottom center;
+  transform-style: preserve-3d;
+  border-top: 4px solid var(--brown-highlight);
+  box-shadow:
+    inset 0 -15px 25px var(--shadow-illustrated),
+    0 2px 4px var(--shadow-soft);
+}
+
+/* ============================================
+   SHELF LEVELS - Stylized planks with bands
+   ============================================ */
+.shelf-level {
+  position: absolute;
+  /* Base insets – overridden per-level for taper */
+  height: var(--shelf-thickness);
+  background: linear-gradient(
+    to bottom,
+    var(--brown-highlight) 0%,      /* Muted highlight band at top */
+    var(--brown-highlight) 15%,
+    var(--brown-base) 15%,           /* Base color */
+    var(--brown-base) 85%,
+    var(--brown-underside) 85%,      /* Darker underside band */
+    var(--brown-underside) 100%
+  );
+  transform: rotateX(4deg);
+  transform-origin: bottom center;
+  transform-style: preserve-3d;
+  border-top: 2px solid var(--brown-highlight);
+  border-bottom: 2px solid var(--brown-underside);
+  box-shadow:
+    0 10px 18px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 var(--highlight-muted),
+    inset 0 2px 0 rgba(0, 0, 0, 0.08);
+}
+
+/* Occlusion band where products touch the shelf – makes items read as "sitting" on it */
+.shelf-level::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0) 70%);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* Underside shadow - graphic, not photorealistic */
+.shelf-level::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  right: 0;
+  height: 8px;
+  /* Clean shadow gradient */
+  background: linear-gradient(
+    to bottom,
+    var(--shadow-illustrated) 0%,
+    rgba(0, 0, 0, 0.1) 60%,
+    transparent 100%
+  );
+  pointer-events: none;
+  filter: blur(3px);
+}
+
+/* Shelf level positions – use shared variables */
+/* Width tapers: higher shelves narrower to match perspective tilt */
+.shelf-level-1 {
+  bottom: var(--shelf-row-0-bottom);
+  left: var(--shelf-edge-1);
+  right: var(--shelf-edge-1);
+}
+
+.shelf-level-2 {
+  bottom: var(--shelf-row-1-bottom);
+  left: var(--shelf-edge-2);
+  right: var(--shelf-edge-2);
+}
+
+.shelf-level-3 {
+  bottom: var(--shelf-row-2-bottom);
+  left: var(--shelf-edge-3);
+  right: var(--shelf-edge-3);
+}
+
+.shelf-level-4 {
+  bottom: var(--shelf-row-3-bottom);
+  left: var(--shelf-edge-4);
+  right: var(--shelf-edge-4);
+}
+
+/* ============================================
+   BOTTOM BASE/FLOOR - Stylized floor
+   ============================================ */
+.shelf-base {
+  position: absolute;
+  bottom: 0;
+  left: 4%;
+  right: 4%;
+  height: 6%;
+  background: linear-gradient(
+    to top,
+    var(--brown-underside) 0%,
+    var(--brown-underside) 20%,
+    var(--brown-base) 20%,
+    var(--brown-base) 70%,
+    var(--brown-highlight) 70%,
+    var(--brown-highlight) 100%
+  );
+  transform: rotateX(4deg);
+  transform-origin: bottom center;
+  transform-style: preserve-3d;
+  /* Top edge highlight */
+  border-top: 3px solid var(--brown-highlight);
+  /* Graphic shadow */
+  box-shadow: 
+    inset 0 -12px 20px var(--shadow-illustrated),
+    0 -2px 4px var(--shadow-soft);
+}
+
+/* Top surface highlight on base */
+.shelf-base::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 35%;
+  /* Muted highlight gradient */
+  background: linear-gradient(
+    135deg,
+    var(--brown-highlight) 0%,
+    rgba(196, 166, 137, 0.5) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  opacity: 0.6;
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+@media (max-width: 768px) {
+  :root {
+    --shelf-row-0-bottom: 75%;
+    --shelf-row-1-bottom: 50%;
+    --shelf-row-2-bottom: 25%;
+    --shelf-row-3-bottom: 0%;
+    --shelf-grid-row-0: 25%;
+    --shelf-grid-row-1: 25%;
+    --shelf-grid-row-2: 25%;
+    --shelf-grid-row-3: 25%;
+  }
+
+  .shelf-background {
+    perspective: 1200px;
+  }
+}
+
+:root {
+  --shelf-edge-1: 5.8%;   /* Wider top ledge */
+  --shelf-edge-2: 5.23%;
+  --shelf-edge-3: 4.65%;
+  --shelf-edge-4: 4%;   /* Keep bottom as is */
+}
+
+/* ============================================
+   DARK MODE SUPPORT
+   ============================================ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --brown-dark: #4a3325;
+    --brown-base: #634a3a;
+    --brown-medium: #725a4a;
+    --brown-light: #816a5a;
+    --brown-highlight: #9d8570;
+    --brown-underside: #3d2a1f;
+    --shadow-illustrated: rgba(0, 0, 0, 0.35);
+    --shadow-soft: rgba(0, 0, 0, 0.18);
+    --highlight-muted: rgba(255, 248, 240, 0.2);
+  }
+}

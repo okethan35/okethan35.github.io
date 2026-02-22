@@ -154,7 +154,7 @@ export default function App() {
   };
 
   return (
-    <div className="relative min-h-screen bouncy-scroll" style={{ overflow: showHero ? 'hidden' : 'auto' }}>
+    <div className="relative min-h-screen bouncy-scroll" style={{ overflow: showHero ? 'hidden' : 'hidden' }}>
       {/* If you want noise everywhere, put it once here */}
       <FigmaNoiseOverlay />
 

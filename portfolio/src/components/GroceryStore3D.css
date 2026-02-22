@@ -1,0 +1,180 @@
+/* Shelf viewport – shared coordinate system so grid and shelf align */
+.shelf-viewport {
+  position: relative;
+  width: 100vw;
+  height: calc(100vh - 5rem);
+  /* Content can extend past edges; hide overflow instead of scaling down */
+  overflow: hidden;
+  transform-style: preserve-3d;
+  transform-origin: center center;
+  /* Products sit on top of each plank – nudge down by plank thickness so they rest on surface */
+  --shelf-tile-offset-y: calc(-1 * var(--shelf-thickness, 22px));
+
+  /* ========== TWEAK: Vertical spacing of items (positive = down, negative = up) ========== */
+  --shelf-tile-compact-y-1: 68%;   /* Row 1 (top shelf) – pull toward center */
+  --shelf-tile-compact-y-2: 43%;   /* Row 2 */
+  --shelf-tile-compact-y-3: 18%;    /* Row 3 – baseline */
+  --shelf-tile-compact-y-4: -18%;  /* Row 4 (bottom shelf) – pull toward center */
+}
+
+.shelf-viewport-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.shelf-viewport-back {
+  z-index: 0;
+  overflow: visible;
+}
+
+/* Shelf product grid – aligned with shelf levels via shared CSS variables */
+/* =============================================================================
+   TWEAK: Per-row alignment (set on .shelf-viewport above)
+   -----------------------------------------------------------------------------
+   Shelf surface alignment (positive = up, negative = down):
+     --shelf-tile-offset-y-1..4   Fine-tune so items rest on each plank
+     --shelf-tile-offset-y        Fallback for all rows
+   -----------------------------------------------------------------------------
+   Vertical spacing (positive = down, negative = up):
+     --shelf-tile-compact-y-1..4  Pull items toward center to reduce gaps
+   -----------------------------------------------------------------------------
+   Horizontal (positive = right, negative = left):
+     --shelf-tile-offset-x-1..4
+   ============================================================================= */
+.shelf-product-grid {
+  display: grid;
+  grid-template-rows: var(--shelf-grid-row-0) var(--shelf-grid-row-1) var(--shelf-grid-row-2) var(--shelf-grid-row-3);
+  grid-template-columns: auto auto;
+  gap: var(--shelf-grid-gap, 0);
+  justify-content: center;
+  z-index: 1;
+  align-items: end;
+  justify-items: center;
+  overflow: visible;
+}
+
+/* Per-level offsets (set on .shelf-container): --shelf-tile-offset-y-1..4, --shelf-tile-offset-x-1..4 */
+.shelf-product-grid .shelf-level-1 {
+  margin-bottom: var(--shelf-tile-offset-y-1, var(--shelf-tile-offset-y, 0));
+  margin-left: var(--shelf-tile-offset-x-1, var(--shelf-tile-offset-x, 0));
+  transform: translateY(var(--shelf-tile-compact-y-1, 0));
+}
+
+.shelf-product-grid .shelf-level-2 {
+  margin-bottom: var(--shelf-tile-offset-y-2, var(--shelf-tile-offset-y, 0));
+  margin-left: var(--shelf-tile-offset-x-2, var(--shelf-tile-offset-x, 0));
+  transform: translateY(var(--shelf-tile-compact-y-2, 0));
+}
+
+.shelf-product-grid .shelf-level-3 {
+  margin-bottom: var(--shelf-tile-offset-y-3, var(--shelf-tile-offset-y, 0));
+  margin-left: var(--shelf-tile-offset-x-3, var(--shelf-tile-offset-x, 0));
+  transform: translateY(var(--shelf-tile-compact-y-3, 0));
+}
+
+.shelf-product-grid .shelf-level-4 {
+  margin-bottom: var(--shelf-tile-offset-y-4, var(--shelf-tile-offset-y, 0));
+  margin-left: var(--shelf-tile-offset-x-4, var(--shelf-tile-offset-x, 0));
+  transform: translateY(var(--shelf-tile-compact-y-4, 0));
+}
+
+/* Shelf product tile – GPU-friendly hover/focus interaction */
+
+.shelf-product-tile {
+  transform-origin: center center;
+  isolation: isolate;
+}
+
+.shelf-product-tile::before {
+  content: '';
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 140px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse 70px 40px at center bottom,
+    rgba(0, 0, 0, 0.35) 0%,
+    rgba(0, 0, 0, 0.2) 45%,
+    transparent 70%
+  );
+  opacity: 0.9;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .shelf-product-tile:hover,
+  .shelf-product-tile:focus-visible {
+    transform: translateY(var(--shelf-tile-compact-y, 0)) scale(1.04);
+  }
+  .shelf-product-tile.shelf-level-1:hover,
+  .shelf-product-tile.shelf-level-1:focus-visible {
+    transform: translateY(var(--shelf-tile-compact-y-1, 0)) scale(1.04);
+  }
+  .shelf-product-tile.shelf-level-2:hover,
+  .shelf-product-tile.shelf-level-2:focus-visible {
+    transform: translateY(var(--shelf-tile-compact-y-2, 0)) scale(1.04);
+  }
+  .shelf-product-tile.shelf-level-3:hover,
+  .shelf-product-tile.shelf-level-3:focus-visible {
+    transform: translateY(var(--shelf-tile-compact-y-3, 0)) scale(1.04);
+  }
+  .shelf-product-tile.shelf-level-4:hover,
+  .shelf-product-tile.shelf-level-4:focus-visible {
+    transform: translateY(var(--shelf-tile-compact-y-4, 0)) scale(1.04);
+  }
+
+  .shelf-product-tile:hover::before,
+  .shelf-product-tile:focus-visible::before {
+    transform: translateX(-50%) scale(1.25);
+    opacity: 1;
+  }
+
+  .shelf-product-tile {
+    transition: transform 0.2s ease-out;
+  }
+
+  .shelf-product-tile::before {
+    transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shelf-product-tile:hover,
+  .shelf-product-tile:focus-visible {
+    transform: translateY(var(--shelf-tile-compact-y, 0));
+  }
+  .shelf-product-tile.shelf-level-1:hover,
+  .shelf-product-tile.shelf-level-1:focus-visible {
+    transform: translateY(var(--shelf-tile-compact-y-1, 0));
+  }
+  .shelf-product-tile.shelf-level-2:hover,
+  .shelf-product-tile.shelf-level-2:focus-visible {
+    transform: translateY(var(--shelf-tile-compact-y-2, 0));
+  }
+  .shelf-product-tile.shelf-level-3:hover,
+  .shelf-product-tile.shelf-level-3:focus-visible {
+    transform: translateY(var(--shelf-tile-compact-y-3, 0));
+  }
+  .shelf-product-tile.shelf-level-4:hover,
+  .shelf-product-tile.shelf-level-4:focus-visible {
+    transform: translateY(var(--shelf-tile-compact-y-4, 0));
+  }
+
+  .shelf-product-tile:hover::before,
+  .shelf-product-tile:focus-visible::before {
+    transform: translateX(-50%);
+    opacity: 0.9;
+  }
+
+  .shelf-product-tile,
+  .shelf-product-tile::before {
+    transition: none;
+  }
+}
+/* Add overrides to .shelf-container as needed, e.g. --shelf-tile-offset-y-1: 4px; */

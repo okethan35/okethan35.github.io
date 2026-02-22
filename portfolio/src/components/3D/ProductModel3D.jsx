@@ -1,4 +1,4 @@
-import { useRef, useEffect, useMemo, Suspense, memo } from 'react';
+import { useRef, useEffect, useLayoutEffect, useMemo, Suspense, memo } from 'react';
 import { useGLTF, Clone } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
 import { gsap } from 'gsap';
@@ -66,8 +66,9 @@ const ModelContent = memo(function ModelContent({ modelPath, position, scale, ro
     return box.getCenter(new THREE.Vector3());
   }, [scene]);
 
-  // Set initial rotation on mount (including modelRotation offset)
-  useEffect(() => {
+  // Set initial modelRotation synchronously before paint to avoid flash of wrong face.
+  // Only on mount/modelRotation change - do NOT include rotationAngle so flip animates.
+  useLayoutEffect(() => {
     if (!groupRef.current) return;
     groupRef.current.rotation.set(
       (modelRotation[0] * Math.PI) / 180,

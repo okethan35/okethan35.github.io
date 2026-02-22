@@ -2,6 +2,8 @@ import { useState, useRef, useLayoutEffect, useEffect } from 'react';
 import { gsap } from 'gsap';
 import FocusedProduct3D from './3D/FocusedProduct3D';
 import ShelfProduct3D from './3D/ShelfProduct3D';
+import ShelfBackground from './3D/ShelfBackground';
+import './GroceryStore3D.css';
 
 /**
  * 3D Grocery Store Experience
@@ -59,6 +61,52 @@ const AISLES = [
         description: 'Want to work together, chat about an idea, or just talk snacks? Here\'s how to reach me.',
         tech: ['Email', 'LinkedIn', 'GitHub', 'Resume'],
         shelfPosition: { row: 1, col: 1 },
+        modelPath: '/models/sample.glb',
+        modelScale: 0.04,
+      },
+      {
+        id: 'project-5',
+        title: 'ROW 3 A',
+        subtitle: 'Shelf Level 3',
+        color: '#F0544F',
+        description: 'Demo item on third shelf level.',
+        tech: ['Demo'],
+        shelfPosition: { row: 2, col: 0 },
+        modelPath: '/models/ethan_cereal_box.glb',
+        modelScale: 0.04,
+        modelRotation: [0, 180, 0],
+      },
+      {
+        id: 'project-6',
+        title: 'ROW 3 B',
+        subtitle: 'Shelf Level 3',
+        color: '#1FA9A4',
+        description: 'Demo item on third shelf level.',
+        tech: ['Demo'],
+        shelfPosition: { row: 2, col: 1 },
+        modelPath: '/models/ethan_cereal_box.glb',
+        modelScale: 0.04,
+        modelRotation: [0, 180, 0],
+      },
+      {
+        id: 'project-7',
+        title: 'ROW 4 A',
+        subtitle: 'Shelf Level 4',
+        color: '#F4C542',
+        description: 'Demo item on bottom shelf level.',
+        tech: ['Demo'],
+        shelfPosition: { row: 3, col: 0 },
+        modelPath: '/models/sample.glb',
+        modelScale: 0.04,
+      },
+      {
+        id: 'project-8',
+        title: 'ROW 4 B',
+        subtitle: 'Shelf Level 4',
+        color: '#2F6FED',
+        description: 'Demo item on bottom shelf level.',
+        tech: ['Demo'],
+        shelfPosition: { row: 3, col: 1 },
         modelPath: '/models/sample.glb',
         modelScale: 0.04,
       },
@@ -469,7 +517,7 @@ export default function GroceryStore3D({ onAisleChange }) {
   };
 
   return (
-    <div className="w-full h-full min-h-screen relative overflow-hidden bg-gradient-to-br from-cereal-cream via-cereal-cream to-cereal-brown/10">
+    <div className="w-full h-full min-h-0 relative overflow-hidden bg-gradient-to-br from-cereal-cream via-cereal-cream to-cereal-brown/10">
       {/* Floating Navigation */}
       <div 
         className="absolute top-4 left-1/2 -translate-x-1/2 z-[10] flex gap-2 bg-cereal-cream/95 backdrop-blur-sm px-4 py-2 rounded-lg border-2 border-cereal-brown shadow-lg"
@@ -501,56 +549,43 @@ export default function GroceryStore3D({ onAisleChange }) {
       {/* 3D Scene Container */}
       <div
         ref={sceneRef}
-        className="w-full h-full flex items-start justify-center relative pt-36"
+        className="w-full h-full flex items-start justify-center relative pt-20"
         style={{ pointerEvents: viewState === 'item-focused' ? 'none' : 'auto' }}
       >
-        {/* Shelf Container */}
+        {/* Shelf viewport – shared coordinate system for grid and shelf (both fill this box) */}
         <div
           ref={shelfRef}
-          className="relative"
-          style={{ overflow: 'visible' }}
+          className="shelf-container shelf-viewport"
         >
-          {/* Products on Shelf - Grid Layout */}
-          {/* Key on container forces complete remount when aisle changes */}
-          <div key={activeAisle} className="flex flex-col gap-6 items-center" style={{ overflow: 'visible' }}>
-            {[0, 1].map((row) => {
-              const rowProducts = currentAisle.products.filter(p => p.shelfPosition.row === row);
-              if (rowProducts.length === 0) return null;
-              
+          {/* 3D Shelf Background – fills viewport, behind grid */}
+          <div className="shelf-viewport-layer shelf-viewport-back">
+            <ShelfBackground />
+          </div>
+          {/* Products on Shelf – grid fills same viewport, aligned with shelf */}
+          <div key={activeAisle} className="shelf-viewport-layer shelf-product-grid">
+            {currentAisle.products.map((product) => {
+              const { row = 0, col = 0 } = product.shelfPosition || {};
               return (
-                <div key={row} className="flex gap-6" style={{ overflow: 'visible' }}>
-                  {rowProducts.map((product) => (
-                    <ShelfProductWrapper
-                      key={`${activeAisle}-${product.id}`}
-                      product={product}
-                      index={currentAisle.products.indexOf(product)}
-                      setItemRef={(el) => {
-                        if (el) itemRefs.current[product.id] = el;
-                      }}
-                      selectedItem={selectedItem}
-                      viewState={viewState}
-                      onItemClick={handleItemClick}
-                      onItemClickWithModal={handleItemClickWithModal}
-                    />
-                  ))}
-                </div>
+                <ShelfProductWrapper
+                  key={`${activeAisle}-${product.id}`}
+                  product={product}
+                  index={currentAisle.products.indexOf(product)}
+                  shelfRow={row}
+                  setItemRef={(el) => {
+                    if (el) itemRefs.current[product.id] = el;
+                  }}
+                  selectedItem={selectedItem}
+                  viewState={viewState}
+                  onItemClick={handleItemClick}
+                  onItemClickWithModal={handleItemClickWithModal}
+                  style={{
+                    gridRow: row + 1,
+                    gridColumn: col + 1,
+                  }}
+                />
               );
             })}
           </div>
-
-          {/* Shelf Backdrop */}
-          <div
-            className="absolute rounded-lg border-4 border-cereal-brown shadow-[12px_12px_0_rgba(43,27,23,0.2)]"
-            style={{
-              left: '50%',
-              top: '50%',
-              width: '600px',
-              height: '450px',
-              transform: 'translate(-50%, -50%)',
-              backgroundColor: '#FFF5E0',
-              zIndex: -1,
-            }}
-          />
         </div>
       </div>
 
@@ -582,7 +617,7 @@ export default function GroceryStore3D({ onAisleChange }) {
             style={{ 
               transformStyle: 'preserve-3d',
               transformOrigin: '50% 50%',
-              opacity: 1, // Ensure it's visible immediately
+              opacity: 1,
             }}
             onClick={handleFlip}
           >
@@ -610,14 +645,14 @@ export default function GroceryStore3D({ onAisleChange }) {
             ref={focusedItemRef}
             className="pointer-events-auto cursor-pointer preserve-3d"
             style={{ 
-              position: 'fixed', // Use fixed to stay viewport-relative, not affected by scroll
-              left: '50%', // Center horizontally (GSAP x transform adjusts from here)
-              top: '50%',  // Center vertically (GSAP y transform adjusts from here)
-              transform: 'translate(-50%, -50%)', // Center the element itself
+              position: 'fixed',
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%, -50%)',
               transformStyle: 'preserve-3d',
               transformOrigin: '50% 50%',
               opacity: 1,
-              willChange: 'transform', // Optimize for transforms
+              willChange: 'transform',
             }}
             onClick={handleFlip}
           >
@@ -695,7 +730,7 @@ export default function GroceryStore3D({ onAisleChange }) {
 //   onItemClickWithModal={handleItemClickWithModal}  // Optional: left + modal view
 // />
 // Then in your product data, you can conditionally use different handlers
-function ShelfProductWrapper({ product, index, setItemRef, selectedItem, viewState, onItemClick, onItemClickWithModal }) {
+function ShelfProductWrapper({ product, index, shelfRow = 0, setItemRef, selectedItem, viewState, onItemClick, onItemClickWithModal, style = {} }) {
   const [isHovered, setIsHovered] = useState(false);
   const wrapperRef = useRef(null);
   const isSelected = selectedItem?.id === product.id;
@@ -725,14 +760,17 @@ function ShelfProductWrapper({ product, index, setItemRef, selectedItem, viewSta
         wrapperRef.current = el;
         setItemRef(el);
       }}
-      className="cursor-pointer"
+      className={`shelf-product-tile shelf-level-${Math.min(shelfRow + 1, 4)} cursor-pointer`}
+      tabIndex={0}
+      role="button"
       style={{ 
         width: '180px',
         height: '220px',
         display: 'inline-block',
         position: 'relative',
         flexShrink: 0,
-        overflow: 'visible', // Allow visual overflow, but container stays fixed size
+        overflow: 'visible',
+        ...style,
       }}
       onClick={() => {
         // Use modal view if handler is provided and product has useModal flag
@@ -745,6 +783,16 @@ function ShelfProductWrapper({ product, index, setItemRef, selectedItem, viewSta
       }}
       onMouseEnter={() => viewState === 'aisle' && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          if (onItemClickWithModal && product.useModal) {
+            onItemClickWithModal(product);
+          } else {
+            onItemClick(product);
+          }
+        }
+      }}
     >
       {product.modelPath ? (
         <ShelfProduct3D

@@ -137,6 +137,7 @@ const ShelfProduct3D = memo(function ShelfProduct3D({ product, isHovered }) {
         style={{ 
           width: '180px', 
           height: '220px',
+          position: 'relative',
         }}
         resize={{ scroll: false, debounce: { scroll: 0, resize: 0 } }}
         onCreated={({ gl }) => {
